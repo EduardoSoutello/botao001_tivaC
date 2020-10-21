@@ -7,18 +7,17 @@
 #include "driverlib/gpio.h"
 #include "driverlib/sysctl.h"
 
-/**
- * main.c
- */
+
 int main(void){
 
     volatile uint32_t x;
     int32_t leitura;
 
+    void Delay();
 
     //Habilitar o clock para PORTF
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
-    //Espera que seja terminada a habilitação da porta
+    //Espera que seja terminada a habilitaÃ§Ã£o da porta
     while (!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOF)){
     }
     // remove o bug de travamento da chave SW2
@@ -34,44 +33,30 @@ int main(void){
 
 
     // Configurar resistores internos e nivel de corrente 2mA
-    GPIOPadConfigSet(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4 ,GPIO_STRENGTH_2MA,GPIO_PIN_TYPE_STD_WPU);
+    GPIOPadConfigSet(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4 ,GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
 
 
 
     while (1){
-        // Apaga os leds
-        GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x00);
-        GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
-        GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x00);
+        leitura = 0;
 
-        if((GPIO_PIN_0 ==1)&(GPIO_PIN_4 ==0)){
+        leitura = GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_0 | GPIO_PIN_4);
+
+        if(leitura == 0x01){
             GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x04);
         }
-        if((GPIO_PIN_0 ==0)&(GPIO_PIN_4 ==1)){
+        if(leitura == 0x10){
             GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x08);
         }
-        if((GPIO_PIN_0 ==0) & (GPIO_PIN_4 ==0)){
+        if(leitura == 0x00){
             GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x02);
+
         }
-
-        /*
-         apos codigo funcionar deletar esse trecho
-           GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x02);
-           for (x = 0; x < 200000; x++);
-           GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x00);
-           for (x = 0; x < 200000; x++);
-
-           GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x04);
-           for (x = 0; x < 200000; x++);
-           GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
-           for (x = 0; x < 200000; x++);
-
-           GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x08);
-           for (x = 0; x < 200000; x++);
-           GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x00);
-           for (x = 0; x < 200000; x++);
-            */
-
+        else{
+            // Apaga todos os leds
+            GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x00);
+            GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
+            GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_3, 0x00);
+        }
        }
-
 }
